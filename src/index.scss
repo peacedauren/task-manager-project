@@ -1,0 +1,17 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Nunito", sans-serif;
+
+  & div {
+    color: #E9EAEC;
+  }
+
+  body {
+      background-color: #333652;
+  }
+
+  & button {
+      cursor: pointer;
+  }
+}
