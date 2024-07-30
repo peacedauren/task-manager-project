@@ -1,11 +1,11 @@
 import './App.scss'
-import { Home } from './Home/Home'
+import { Column } from './Column/Column'
 
 function App() {
 
   return (
     <>
-      <Home />
+      <Column />
     </>
   )
 }
