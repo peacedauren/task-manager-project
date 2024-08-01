@@ -1,4 +1,4 @@
-import { createContext, DragEvent, useEffect, useState } from 'react';
+import { DragEvent, useEffect, useState } from 'react';
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -40,7 +40,6 @@ export const Column = () => {
     const [showAlert, setShowAlert] = useState(false);
     const[isModalClosed, setIsModalClosed] = useState(false);
     const [editingTask, setEditingTask] = useState<TTask | null>(null);
-    const [editedTask, setEditedTask] = useState<string | null>(null);
 
     const onCloseModalHanlder = () => {
         setIsModalClosed(false);
