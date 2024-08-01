@@ -1,4 +1,4 @@
-import { DragEvent, useEffect, useState } from 'react';
+import { createContext, DragEvent, useEffect, useState } from 'react';
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -19,8 +19,9 @@ AlertTitle,
 import { IoIosClose } from "react-icons/io";
 import axiosTasks from '../Config/axiosTasks';
 import './Column.scss'
+import { EditorModal } from '@/Editor/EditorModal';
 
-type TTask = {
+export type TTask = {
     id: string
     type: string,
     task: string
@@ -35,9 +36,20 @@ export const Column = () => {
     const [columns, setColumns] = useState<TColumn[]>([{column: 'todo', showForm: false}, {column: 'in process', showForm: false}, {column: 'done', showForm: false}]);
     const [tasks, setTasks] = useState<TTask[]>([]);
     const [newTask, setNewTask] = useState<string>('');
-    const [lastPostedTask, setLastPostedTask] = useState<string>();
     const [currentTask, setCurrentTask] = useState<number>();
     const [showAlert, setShowAlert] = useState(false);
+    const[isModalClosed, setIsModalClosed] = useState(false);
+    const [editingTask, setEditingTask] = useState<TTask | null>(null);
+    const [editedTask, setEditedTask] = useState<string | null>(null);
+
+    const onCloseModalHanlder = () => {
+        setIsModalClosed(false);
+    }
+
+    const onShowEditModalHandler = (index: number) => {
+        setIsModalClosed(true);
+        setEditingTask(tasks[index]);
+    }
 
     const getTasks = async () => {
         const { data } = await axiosTasks.get('tasks.json');
@@ -143,6 +155,14 @@ export const Column = () => {
 
     return(
         <div className="page">
+            <EditorModal 
+                isClosed={isModalClosed} 
+                onCloseModal={onCloseModalHanlder} 
+                setIsClosed={setIsModalClosed} 
+                task={editingTask!}
+                setEditedTask={setTasks}
+                allTasks={tasks}
+            />
             <div className='columns'>
                 {columns.map((column, index) => (
                     <ScrollArea 
@@ -167,11 +187,11 @@ export const Column = () => {
                                                     key={index}
                                                     onDragStart={() => onDragStartHandler(task)}
                                                 >
-                                                    {task.task}
+                                                    <div dangerouslySetInnerHTML={{ __html: task.task}}/>
                                                 </Badge>
                                             </ContextMenuTrigger>
                                             <ContextMenuContent>
-                                                <ContextMenuItem onClick={() => console.log(1)}>Edit</ContextMenuItem>
+                                                <ContextMenuItem onClick={() => onShowEditModalHandler(index)}>Edit</ContextMenuItem>
                                                 <ContextMenuItem onClick={() => onDeleteCardHanlder(index)}>Delete</ContextMenuItem>
                                             </ContextMenuContent>
                                         </ContextMenu>
