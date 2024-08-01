@@ -102,9 +102,10 @@ export const Column = () => {
     const toggleShowForm = (index: number) => {
         const updatedColumns = columns.map((column, i) => {
             if (i === index) {
-                return { ...column, showForm: !column.showForm };
+                return { ...column, showForm: true };
+            } else {
+                return { ...column, showForm: false};
             }
-            return column;
         });
         setColumns(updatedColumns);
     }
