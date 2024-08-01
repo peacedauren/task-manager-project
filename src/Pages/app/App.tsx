@@ -1,5 +1,5 @@
 import './App.scss'
-import { Column } from './Column/Column'
+import { Column } from '../../Entities/Column/Column'
 
 function App() {
 

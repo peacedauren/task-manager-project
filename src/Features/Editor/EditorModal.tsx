@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef } from "react"
-import Modal from "@/Modal/Modal"
 import { EditorContext } from "./EditorContext"
-import axiosTasks from "@/Config/axiosTasks"
-import { TTask } from "@/Column/Column"
+import axiosTasks from "@/Shared/lib/axiosTasks"
+import { TTask } from "@/Entities/Column/Column"
+import Modal from "../Modal/Modal"
 
 type TEditor = {
     task?: TTask,
@@ -19,7 +19,6 @@ export const EditorModal = (editor: TEditor) => {
 
     const onSaveButtonHandler = async () => {
         const data = await editorInstanceRef.current.save();
-        console.log(data.blocks[0].data.text);
 
         axiosTasks.put(`https://task-manager-project-66e0f-default-rtdb.firebaseio.com/tasks/${editor.task?.id}.json`, {
             task: data.blocks[0].data.text,

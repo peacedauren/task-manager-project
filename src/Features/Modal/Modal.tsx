@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react';
 import './Modal.scss';
-import Backdrop from '../Backdrop/Backdrop';
+import Backdrop from '../../Entities/Backdrop/Backdrop';
 import { IoCloseSharp } from "react-icons/io5";
 
 type Props = {

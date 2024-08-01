@@ -1,25 +1,25 @@
 import { DragEvent, useEffect, useState } from 'react';
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Button } from "@/components/ui/button"
+import { Input } from "@/Shared/UI/input"
+import { Badge } from "@/Shared/UI/badge"
+import { ScrollArea } from "@/Shared/UI/scroll-area"
+import { Button } from "@/Shared/UI/button"
 import {
     ContextMenu,
     ContextMenuContent,
     ContextMenuItem,
     ContextMenuTrigger,
-  } from "@/components/ui/context-menu"
+  } from "@/Shared/UI/context-menu"
 import { RocketIcon } from "@radix-ui/react-icons"
 
 import {
 Alert,
 AlertDescription,
 AlertTitle,
-} from "@/components/ui/alert"
+} from "@/Shared/UI/alert"
 import { IoIosClose } from "react-icons/io";
-import axiosTasks from '../Config/axiosTasks';
+import axiosTasks from '../../Shared/lib/axiosTasks';
 import './Column.scss'
-import { EditorModal } from '@/Editor/EditorModal';
+import { EditorModal } from '@/Features/Editor/EditorModal';
 
 export type TTask = {
     id: string
@@ -97,7 +97,6 @@ export const Column = () => {
         } else {
             setShowAlert(true);
         }
-        console.log(tasks);
     }
 
     const toggleShowForm = (index: number) => {
@@ -131,7 +130,6 @@ export const Column = () => {
             type: column
         });
         tasks.splice(currentTask!, 1, {id: tasks[currentTask!].id, task: tasks[currentTask!].task, type: column});
-        console.log(tasks);
 
         setTasks([...tasks]);
     }
@@ -180,7 +178,7 @@ export const Column = () => {
                                     ? 
                                         <ContextMenu key={Date.now() * index}>
                                             <ContextMenuTrigger style={{width: `100%`}}>
-                                                <Badge 
+                                                <Badge
                                                     draggable={true}
                                                     className='task'
                                                     key={index}
@@ -209,18 +207,18 @@ export const Column = () => {
                                 <p>+</p>
                                 <p>Добавить карточку</p>
                             </Button>
-                            <Button style={{display: column.showForm ? 'block' : 'none'}}>Добавить</Button>
-                            <Button style={{display: column.showForm ? 'block' : 'none'}} onClick={() => toggleShowForm(index)} className='edit-cancel'><IoIosClose /></Button>
+                            <Button style={{display: column.showForm ? 'block' : 'none'}} onClick={(e) => onCreateCardHandler(e, column)}>Добавить</Button>
+                            <Button style={{display: column.showForm ? 'block' : 'none', fontSize: "20px"}} onClick={() => toggleShowForm(index)} className='edit-cancel'><IoIosClose /></Button>
                         </div>
                     </ScrollArea>
                 ))}
             </div>
             <div className="alert">
-                <Alert style={{display: showAlert ? 'block' : 'none'}}>
-                    <RocketIcon className="h-4 w-4" />
-                    <AlertTitle>Heads up!</AlertTitle>
+                <Alert style={{display: showAlert ? 'block' : 'none', borderColor: "#d9534f", color: '#d9534f'}}>
+                    <RocketIcon className="h-4 w-4" style={{color: "#d9534f"}}/>
+                    <AlertTitle>Write your Task</AlertTitle>
                     <AlertDescription>
-                        You can add components to your app using the cli.
+                        You must write a task to post it.
                     </AlertDescription>
                 </Alert>
             </div>
