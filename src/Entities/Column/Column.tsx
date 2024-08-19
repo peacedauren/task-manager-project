@@ -1,4 +1,4 @@
-import { DragEvent, useEffect, useState } from 'react';
+import { DragEvent, useEffect, useRef, useState } from 'react';
 import { Input } from "@/Shared/UI/input"
 import { Badge } from "@/Shared/UI/badge"
 import { ScrollArea } from "@/Shared/UI/scroll-area"
@@ -28,6 +28,7 @@ export type TTask = {
 }
 
 type TColumn = {
+    id: string,
     column: string,
     showForm: boolean
 }
@@ -42,6 +43,9 @@ export const Column = () => {
     const [editingTask, setEditingTask] = useState<TTask | null>(null);
     const [showNewColumn, setShowNewColumn] = useState<boolean>(false);
     const [newColumn, setNewColumn] = useState<string>();
+    const [editColumn, setEditColumn] = useState<number | null>(null);
+    // const [editingColumnName, setEditingColumnName] = useState<string>();
+    const editingColumnName = useRef<HTMLInputElement>(null);
 
     const onCloseModalHanlder = () => {
         setIsModalClosed(false);
@@ -58,12 +62,12 @@ export const Column = () => {
 
         if(dataColumns.data) {
             const takenColumns: TColumn[] = Object.values(dataColumns.data);
+            const takenColumnsId: string[] = Object.keys(dataColumns.data);
 
-            takenColumns.map((takenColumn) => {
-                console.log(takenColumn)
+            takenColumns.map((takenColumn, index) => {
                 if(!columns.find(column => column.column === takenColumn.column)) {
                     const copyColumns = columns;
-                    copyColumns.push({column: takenColumn.column, showForm: false});
+                    copyColumns.push({id: takenColumnsId[index], column: takenColumn.column, showForm: false});
                     setColumns([...copyColumns]);
                 }
             })
@@ -163,13 +167,37 @@ export const Column = () => {
         await axiosTasks.post('columns.json', {
             column: `${newColumn}`,
             showForm: `false`,
+        }).then (response => {
+            const copyColumns = columns;
+            copyColumns.push({id: response.data.name, column: newColumn!, showForm: false});
+            setColumns([...copyColumns]);
         })
 
-        const copyColumns = columns;
-        copyColumns.push({column: newColumn!, showForm: false});
-        setColumns([...copyColumns]);
-
         setShowNewColumn(false);
+    }
+
+    const onDeleteColumnHandler = async (column: TColumn) => {
+        await axiosTasks.delete(`https://task-manager-project-66e0f-default-rtdb.firebaseio.com/columns/${column.id}.json`);
+
+        const copyColumns = columns;
+        copyColumns.splice(columns.indexOf(column), 1);
+        setColumns([...copyColumns]);
+    }
+
+    const onEditColumnHanlder = async (e: React.FormEvent, column: TColumn) => {
+        e.preventDefault();
+        await axiosTasks.put(`https://task-manager-project-66e0f-default-rtdb.firebaseio.com/columns/${column.id}.json`, { 
+            column: editingColumnName.current?.value,
+            showForm: false
+        });
+
+        columns.splice(columns.indexOf(column), 1, {
+            id: column.id,
+            column: `${editingColumnName!.current?.value}`,
+            showForm: false
+        });
+
+        setEditColumn(null);
     }
 
     useEffect(() => {
@@ -191,7 +219,7 @@ export const Column = () => {
             />
             <div className='columns'>
                 {columns.map((column, index) => (
-                    <ContextMenu>
+                    <ContextMenu key={Date.now() * index}>
                         <ContextMenuTrigger>
                             <ScrollArea
                                 key={index * Date.now()}
@@ -200,9 +228,26 @@ export const Column = () => {
                                 onDragLeave={(e) => onDragLeaveHandler(e)}
                                 onDrop={(e) => onDropHandler(e, column.column)}
                             >
-                                <div className="column-header">
-                                    {column.column}
-                                </div>
+                                {
+                                    editColumn === index 
+                                    ? 
+                                        <form style={{display: "flex", flexDirection: "column", alignItems: "center", margin: '5px 0'}} onSubmit={(e) => {onEditColumnHanlder(e, column)}}>
+                                            <Input 
+                                                style={{width: '100%'}}
+                                                defaultValue={column.column}
+                                                ref={editingColumnName}
+                                            />
+                                            <div className="form-buttons" style={{width: '80%', marginTop: '5px', display: 'flex', justifyContent: "space-between"}}>
+                                                <Button style={{width: '45%', background: "green", fontSize: "20px"}} type='submit'>+</Button>
+                                                <Button style={{width: '45%', background: "red", fontSize: "20px"}} onClick={() => setEditColumn(null)}><IoIosClose /></Button>
+                                            </div>
+                                        </form>
+                                    :
+                                        <div className="column-header">
+                                            {column.column}
+                                        </div>
+                                        
+                                }
                                 <div className="tasks">
                                     {
                                         tasks.map((task, index) => (
@@ -231,7 +276,7 @@ export const Column = () => {
                                 </div>
                                 <form onSubmit={(e) => onCreateCardHandler(e, column)} className='add-card-form' style={{display: column.showForm ? 'block' : 'none'}}>
                                     <div className="input-container">
-                                        <Input placeholder='Введите новое задание' className='newTask' onChange={(e) => setNewTask(e.target.value)} value={newTask}/>
+                                        <Input placeholder='Введите новое задание' className='newTask' onChange={(e) => {console.log(e.target.value)}}/>
                                     </div>
                                 </form>
                                 <div className="add-card">
@@ -244,7 +289,8 @@ export const Column = () => {
                             </ScrollArea>
                         </ContextMenuTrigger>
                         <ContextMenuContent>
-                            <ContextMenuItem>Delete</ContextMenuItem>
+                            <ContextMenuItem onClick={() => {setEditColumn(index)}}>Edit</ContextMenuItem>
+                            <ContextMenuItem onClick={() => {onDeleteColumnHandler(column)}}>Delete</ContextMenuItem>
                         </ContextMenuContent>
                     </ContextMenu>
                 ))}
