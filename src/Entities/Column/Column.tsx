@@ -36,7 +36,6 @@ type TColumn = {
 export const Column = () => {
     const [columns, setColumns] = useState<TColumn[]>([]);
     const [tasks, setTasks] = useState<TTask[]>([]);
-    const [newTask, setNewTask] = useState<string>('');
     const [currentTask, setCurrentTask] = useState<number>();
     const [showAlert, setShowAlert] = useState(false);
     const [isModalClosed, setIsModalClosed] = useState(false);
@@ -45,6 +44,7 @@ export const Column = () => {
     const [newColumn, setNewColumn] = useState<string>();
     const [editColumn, setEditColumn] = useState<number | null>(null);
     const editingColumnName = useRef<HTMLInputElement>(null);
+    const newTask = useRef<HTMLInputElement>(null);
 
     const onCloseModalHanlder = () => {
         setIsModalClosed(false);
@@ -92,17 +92,16 @@ export const Column = () => {
         e.preventDefault();
 
         if(newTask) {
-            if(newTask.trim() !== '') {
+            if(newTask.current?.value.trim() !== '') {
                 setShowAlert(false);
                 await axiosTasks.post(`tasks.json`, {
                     type: `${column.column}`,
-                    task: `${newTask}`,
+                    task: `${newTask.current?.value}`,
                 }).then (response => {
                     const copyTasks = tasks;
-                    copyTasks.push({id: response.data.name, type: column.column, task: newTask!});
+                    copyTasks.push({id: response.data.name, type: column.column, task: newTask.current?.value!});
                     setTasks([...copyTasks]);
                 })
-                setNewTask('');
             } else {
                 setShowAlert(true);
             }
@@ -293,7 +292,7 @@ export const Column = () => {
                                 </div>
                                 <form onSubmit={(e) => onCreateCardHandler(e, column)} className='add-card-form' style={{display: column.showForm ? 'block' : 'none'}}>
                                     <div className="input-container">
-                                        <Input placeholder='Введите новое задание' className='newTask' onChange={(e) => {console.log(e.target.value)}}/>
+                                        <Input placeholder='Введите новое задание' className='newTask' ref={newTask}/>
                                     </div>
                                 </form>
                                 <div className="add-card">
