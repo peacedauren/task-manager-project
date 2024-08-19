@@ -44,7 +44,6 @@ export const Column = () => {
     const [showNewColumn, setShowNewColumn] = useState<boolean>(false);
     const [newColumn, setNewColumn] = useState<string>();
     const [editColumn, setEditColumn] = useState<number | null>(null);
-    // const [editingColumnName, setEditingColumnName] = useState<string>();
     const editingColumnName = useRef<HTMLInputElement>(null);
 
     const onCloseModalHanlder = () => {
@@ -186,16 +185,34 @@ export const Column = () => {
 
     const onEditColumnHanlder = async (e: React.FormEvent, column: TColumn) => {
         e.preventDefault();
+
+        const newColumnName = editingColumnName!.current?.value;
+
         await axiosTasks.put(`https://task-manager-project-66e0f-default-rtdb.firebaseio.com/columns/${column.id}.json`, { 
-            column: editingColumnName.current?.value,
+            column: newColumnName,
             showForm: false
         });
 
         columns.splice(columns.indexOf(column), 1, {
             id: column.id,
-            column: `${editingColumnName!.current?.value}`,
+            column: newColumnName!,
             showForm: false
         });
+
+        tasks.map(async (task, index) => {
+            if(task.type === column.column) {
+                await axiosTasks.put(`https://task-manager-project-66e0f-default-rtdb.firebaseio.com/tasks/${task.id}.json`, { 
+                    task: task.task,
+                    type: newColumnName
+                });
+                
+                tasks.splice(index, 1, {
+                    id: task.id,
+                    task: task.task,
+                    type: newColumnName!
+                })
+            }
+        })
 
         setEditColumn(null);
     }
