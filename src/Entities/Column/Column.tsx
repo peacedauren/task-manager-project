@@ -20,6 +20,7 @@ import { IoIosClose } from "react-icons/io";
 import axiosTasks from '../../Shared/lib/axiosTasks';
 import './Column.scss'
 import { EditorModal } from '@/Features/Editor/EditorModal';
+import { Task } from '../Task/Task';
 
 export type TTask = {
     id: string
@@ -269,22 +270,7 @@ export const Column = () => {
                                         tasks.map((task, index) => (
                                             task.type === column.column
                                             ? 
-                                                <ContextMenu key={Date.now() * index}>
-                                                    <ContextMenuTrigger style={{width: `100%`}}>
-                                                        <Badge
-                                                            draggable={true}
-                                                            className='task'
-                                                            key={index}
-                                                            onDragStart={() => onDragStartHandler(task)}
-                                                        >
-                                                            <div dangerouslySetInnerHTML={{ __html: task.task}}/>
-                                                        </Badge>
-                                                    </ContextMenuTrigger>
-                                                    <ContextMenuContent>
-                                                        <ContextMenuItem onClick={() => onShowEditModalHandler(index)}>Edit</ContextMenuItem>
-                                                        <ContextMenuItem onClick={() => onDeleteCardHanlder(index)}>Delete</ContextMenuItem>
-                                                    </ContextMenuContent>
-                                                </ContextMenu>
+                                                <Task index={index} task={task} onDragStart={onDragStartHandler} onDeleteCard={onDeleteCardHanlder} onShowEditModal={onShowEditModalHandler}/>
                                             :
                                                 <></>
                                         ))
